@@ -14,13 +14,13 @@ pub fn solve(sud: Sudoku) -> Sudoku {
                     if potentials.len() == 1 {
                         //println!("Found [{}][{}] -> {:?}", i, j, *potentials.first().unwrap());
                         grid.set_value(i, j,*potentials.first().unwrap());
-                        grid = models::grids::build_grid(models::grids::to_sudoku(&grid));
+                        grid = models::grids::build_grid(*grid.to_sudoku());
                     }else {
                         for potential in potentials.iter() {
                             if grid.get_cell(i, j).value.is_none() && check_impossible(&grid, i, j, potential) {
                                 //println!("Found Impossible [{}][{}] -> {:?}", i, j, potential.unwrap());
                                 grid.set_value(i, j,*potential);
-                                grid = models::grids::build_grid(models::grids::to_sudoku(&grid));
+                                grid = models::grids::build_grid(*grid.to_sudoku());
                             }
                         }
                     }
@@ -28,7 +28,7 @@ pub fn solve(sud: Sudoku) -> Sudoku {
             }
         }
     }
-    models::grids::to_sudoku(&grid)
+    *grid.to_sudoku()
 }
 
 pub fn check_impossible(grid: &models::grids::Grid, i: usize, j: usize, candidate: &Option<u8>) -> bool {
