@@ -1,4 +1,7 @@
-pub struct Cell {
+use models::grids::*;
+
+pub struct Cell<'a> {
+    pub grid: Option<&'a Grid<'a>>,
     pub value: Option<u8>,
     pub h_position: Option<usize>,
     pub v_position: Option<usize>,
@@ -7,8 +10,9 @@ pub struct Cell {
     pub region: [Option<u8>; 9]
 }
 
-pub fn build_cell() -> Cell {
+pub fn build_cell<'a>() -> Cell<'a> {
     Cell {
+        grid: None,
         value: None,
         h_position: None,
         v_position: None,
@@ -18,7 +22,7 @@ pub fn build_cell() -> Cell {
     }
 }
 
-impl Cell {
+impl<'a> Cell<'a> {
     pub fn find_potentials(&self) -> Vec<Option<u8>> {
         let mut result: Vec<Option<u8>> = vec![Some(1), Some(2), Some(3), Some(4), Some(5), Some(6), Some(7), Some(8), Some(9)];
         if !self.value.is_some() {
@@ -35,11 +39,12 @@ impl Cell {
         result
     }
 }
-impl Copy for Cell {}
+impl<'a> Copy for Cell<'a> {}
 
-impl Clone for Cell {
+impl<'a> Clone for Cell<'a> {
     fn clone(&self) -> Self {
         Cell {
+            grid: self.grid,
             value: self.value,
             h_position: self.h_position,
             v_position: self.v_position,

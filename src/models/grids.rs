@@ -1,27 +1,27 @@
 use models::cells::*;
 use Sudoku;
 
-pub struct Grid {
+pub struct Grid<'a> {
     sudoku: Sudoku,
     pub number_found: u8,
-    pub value: [[Cell; 9]; 9]
+    pub value: [[Cell<'a>; 9]; 9]
 }
 
-pub fn build_grid(sudoku: Sudoku) -> Grid {
-    let mut result: Grid = Grid{
+pub fn build_grid<'a>(sudoku: Sudoku) -> Grid<'a> {
+    let mut grid = Grid{
         sudoku,
         number_found: 0,
         value: [[build_cell(); 9]; 9]
     };
     for i in 0..9 {
         for j in 0..9 {
-            result.init_grid_cell(i, j);
+            grid.init_grid_cell(i, j);
         }
     }
-    result
+    grid
 }
 
-impl Grid {
+impl<'a> Grid<'a> {
     pub fn set_value(&mut self, i: usize, j: usize, value: Option<u8>) {
         self.sudoku[i][j] = value;
         self.value[i][j].value = value;
