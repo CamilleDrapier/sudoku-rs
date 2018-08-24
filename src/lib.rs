@@ -9,18 +9,16 @@ pub fn solve(sud: Sudoku) -> Sudoku {
         prev_number = grid.number_found;
         for i in 0..9 {
             for j in 0..9 {
-                if grid.get_cell(i, j).value.is_none() {
-                    let potentials = grid.get_cell(i, j).find_potentials();
+                if grid.get_value(i, j).is_none() {
+                    let potentials = grid.find_potentials(i, j);
                     if potentials.len() == 1 {
                         //println!("Found [{}][{}] -> {:?}", i, j, *potentials.first().unwrap());
                         grid.set_value(i, j,*potentials.first().unwrap());
-                        grid = models::grids::build_grid(*grid.to_sudoku());
                     }else {
                         for potential in potentials.iter() {
-                            if grid.get_cell(i, j).value.is_none() && check_impossible(&grid, i, j, potential) {
+                            if grid.get_value(i, j).is_none() && check_impossible(&grid, i, j, potential) {
                                 //println!("Found Impossible [{}][{}] -> {:?}", i, j, potential.unwrap());
                                 grid.set_value(i, j,*potential);
-                                grid = models::grids::build_grid(*grid.to_sudoku());
                             }
                         }
                     }
@@ -33,28 +31,28 @@ pub fn solve(sud: Sudoku) -> Sudoku {
 
 pub fn check_impossible(grid: &models::grids::Grid, i: usize, j: usize, candidate: &Option<u8>) -> bool {
     let mut line_impossible = true;
-    for (x, cell) in grid.value[i].iter().enumerate() {
+    for (x, cell) in grid.sudoku[i].iter().enumerate() {
         if x != j {
             line_impossible = line_impossible &&
                 (
-                    cell.value.is_some() ||
-                        cell.line.contains(candidate) ||
-                        cell.column.contains(candidate) ||
-                        cell.region.contains(candidate)
+                    cell.is_some() ||
+                        grid.line(i).contains(candidate) ||
+                        grid.column(x).contains(candidate) ||
+                        grid.region(i, x).contains(candidate)
                 )
         }
     }
     let mut column_impossible = true;
-    for (x, line) in grid.value.iter().enumerate() {
+    for (x, line) in grid.sudoku.iter().enumerate() {
         if x != i {
             for (y, cell) in line.iter().enumerate() {
                 if y == j {
                     column_impossible = column_impossible &&
                         (
-                            cell.value.is_some() ||
-                                cell.line.contains(candidate) ||
-                                cell.column.contains(candidate) ||
-                                cell.region.contains(candidate)
+                            cell.is_some() ||
+                                grid.line(x).contains(candidate) ||
+                                grid.column(y).contains(candidate) ||
+                                grid.region(x, y).contains(candidate)
                         )
                 }
             }

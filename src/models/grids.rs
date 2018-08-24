@@ -1,65 +1,79 @@
-use models::cells::*;
 use Sudoku;
 
-pub struct Grid<'a> {
-    sudoku: Sudoku,
+pub struct Grid {
+    pub sudoku: Sudoku,
     pub number_found: u8,
-    pub value: [[Cell<'a>; 9]; 9]
 }
 
-pub fn build_grid<'a>(sudoku: Sudoku) -> Grid<'a> {
-    let mut grid = Grid{
-        sudoku,
-        number_found: 0,
-        value: [[build_cell(); 9]; 9]
-    };
-    for i in 0..9 {
-        for j in 0..9 {
-            grid.init_grid_cell(i, j);
+pub fn build_grid(sudoku: Sudoku) -> Grid {
+    let mut number_found = 0;
+    for lines in sudoku.iter() {
+        for cells in lines.iter() {
+            match cells {
+                Some(_) => number_found = number_found + 1,
+                None => ()
+            }
         }
     }
-    grid
+    Grid{
+        sudoku,
+        number_found
+    }
 }
 
-impl<'a> Grid<'a> {
+impl Grid {
     pub fn set_value(&mut self, i: usize, j: usize, value: Option<u8>) {
         self.sudoku[i][j] = value;
-        self.value[i][j].value = value;
         self.number_found = self.number_found + 1
     }
 
-    pub fn get_cell(&mut self, i: usize, j: usize) -> &Cell {
-        &self.value[i][j]
+    pub fn get_value(&self, i: usize, j: usize) -> Option<u8> {
+        self.sudoku[i][j]
     }
 
-    fn init_grid_cell(&mut self, i: usize, j: usize) {
-
-        let cell = &mut self.value[i][j];
-        cell.value = self.sudoku[i][j];
-        if cell.value.is_some() {
-            self.number_found = self.number_found + 1;
+    pub fn find_potentials(&self, i: usize, j: usize) -> Vec<Option<u8>> {
+        match self.get_value(i, j) {
+            None => {
+                let mut result: Vec<Option<u8>> = vec![Some(1), Some(2), Some(3), Some(4), Some(5), Some(6), Some(7), Some(8), Some(9)];
+                for region in [self.line(i), self.column(j), self.region(i, j)].iter() {
+                    for value in region.iter() {
+                        if result.contains(value) {
+                            //TODO use remove_item one day
+                            let pos = result.iter().position(|x| *x == *value);
+                            result.remove(pos.unwrap());
+                        }
+                    }
+                }
+                result
+            },
+            Some(_) => vec![]
         }
-        cell.h_position = Some(i);
-        cell.v_position = Some(j);
+    }
 
+    pub fn line(&self, i: usize) -> [Option<u8>; 9] {
+        self.sudoku[i]
+    }
 
-        for (x, val) in self.sudoku[i].iter().enumerate() {
-            cell.line[x] = *val;
+    pub fn column(&self, j: usize) -> [Option<u8>; 9] {
+        let mut result = [None; 9];
+        for (i, val) in self.sudoku.iter().enumerate() {
+            result[i] = val[j]
         }
+        result
+    }
 
-        for (x, line) in self.sudoku.iter().enumerate() {
-            cell.column[x] = line[j];
-        }
-
+    pub fn region(&self, i: usize, j: usize) -> [Option<u8>; 9] {
+        let mut result = [None; 9];
         let i_region = (i / 3) * 3;
         let j_region = (j / 3) * 3;
         let mut r = 0;
         for k in i_region..(i_region + 3) {
             for l in j_region..(j_region + 3) {
-                cell.region[r] = self.sudoku[k][l];
+                result[r] = self.sudoku[k][l];
                 r = r + 1;
             }
         }
+        result
     }
 
     pub fn to_sudoku(&self) -> &Sudoku {
