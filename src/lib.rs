@@ -16,7 +16,7 @@ pub fn solve(sud: Sudoku) -> Sudoku {
                         grid.set_value(i, j,*potentials.first().unwrap());
                     }else {
                         for potential in potentials.iter() {
-                            if grid.get_value(i, j).is_none() && check_impossible(&grid, i, j, potential) {
+                            if grid.get_value(i, j).is_none() && grid.check_impossible(i, j, potential) {
                                 //println!("Found Impossible [{}][{}] -> {:?}", i, j, potential.unwrap());
                                 grid.set_value(i, j,*potential);
                             }
@@ -27,36 +27,4 @@ pub fn solve(sud: Sudoku) -> Sudoku {
         }
     }
     *grid.to_sudoku()
-}
-
-pub fn check_impossible(grid: &models::grids::Grid, i: usize, j: usize, candidate: &Option<u8>) -> bool {
-    let mut line_impossible = true;
-    for (x, cell) in grid.sudoku[i].iter().enumerate() {
-        if x != j {
-            line_impossible = line_impossible &&
-                (
-                    cell.is_some() ||
-                        grid.line(i).contains(candidate) ||
-                        grid.column(x).contains(candidate) ||
-                        grid.region(i, x).contains(candidate)
-                )
-        }
-    }
-    let mut column_impossible = true;
-    for (x, line) in grid.sudoku.iter().enumerate() {
-        if x != i {
-            for (y, cell) in line.iter().enumerate() {
-                if y == j {
-                    column_impossible = column_impossible &&
-                        (
-                            cell.is_some() ||
-                                grid.line(x).contains(candidate) ||
-                                grid.column(y).contains(candidate) ||
-                                grid.region(x, y).contains(candidate)
-                        )
-                }
-            }
-        }
-    }
-    line_impossible || column_impossible
 }

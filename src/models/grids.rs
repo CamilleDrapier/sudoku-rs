@@ -31,25 +31,6 @@ impl Grid {
         self.sudoku[i][j]
     }
 
-    pub fn find_potentials(&self, i: usize, j: usize) -> Vec<Option<u8>> {
-        match self.get_value(i, j) {
-            None => {
-                let mut result: Vec<Option<u8>> = vec![Some(1), Some(2), Some(3), Some(4), Some(5), Some(6), Some(7), Some(8), Some(9)];
-                for region in [self.line(i), self.column(j), self.region(i, j)].iter() {
-                    for value in region.iter() {
-                        if result.contains(value) {
-                            //TODO use remove_item one day
-                            let pos = result.iter().position(|x| *x == *value);
-                            result.remove(pos.unwrap());
-                        }
-                    }
-                }
-                result
-            },
-            Some(_) => vec![]
-        }
-    }
-
     pub fn line(&self, i: usize) -> [Option<u8>; 9] {
         self.sudoku[i]
     }
@@ -74,6 +55,57 @@ impl Grid {
             }
         }
         result
+    }
+
+    pub fn find_potentials(&self, i: usize, j: usize) -> Vec<Option<u8>> {
+        match self.get_value(i, j) {
+            None => {
+                let mut result: Vec<Option<u8>> = vec![Some(1), Some(2), Some(3), Some(4), Some(5), Some(6), Some(7), Some(8), Some(9)];
+                for region in [self.line(i), self.column(j), self.region(i, j)].iter() {
+                    for value in region.iter() {
+                        if result.contains(value) {
+                            //TODO use remove_item one day
+                            let pos = result.iter().position(|x| *x == *value);
+                            result.remove(pos.unwrap());
+                        }
+                    }
+                }
+                result
+            },
+            Some(_) => vec![]
+        }
+    }
+
+    pub fn check_impossible(&self, i: usize, j: usize, candidate: &Option<u8>) -> bool {
+        let mut line_impossible = true;
+        for (x, cell) in self.sudoku[i].iter().enumerate() {
+            if x != j {
+                line_impossible = line_impossible &&
+                    (
+                        cell.is_some() ||
+                            self.line(i).contains(candidate) ||
+                            self.column(x).contains(candidate) ||
+                            self.region(i, x).contains(candidate)
+                    )
+            }
+        }
+        let mut column_impossible = true;
+        for (x, line) in self.sudoku.iter().enumerate() {
+            if x != i {
+                for (y, cell) in line.iter().enumerate() {
+                    if y == j {
+                        column_impossible = column_impossible &&
+                            (
+                                cell.is_some() ||
+                                    self.line(x).contains(candidate) ||
+                                    self.column(y).contains(candidate) ||
+                                    self.region(x, y).contains(candidate)
+                            )
+                    }
+                }
+            }
+        }
+        line_impossible || column_impossible
     }
 
     pub fn to_sudoku(&self) -> &Sudoku {
