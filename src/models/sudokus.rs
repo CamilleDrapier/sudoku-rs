@@ -1,0 +1,1 @@
+pub type Sudoku = [[Option<u8>; 9]; 9];

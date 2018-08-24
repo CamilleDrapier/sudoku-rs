@@ -1,6 +1,6 @@
 extern crate sudoku;
-use sudoku::Sudoku;
-use sudoku::models::*;
+use sudoku::models::grids::Grid;
+use sudoku::models::sudokus::Sudoku;
 
 const RESOLVED : Sudoku = [
     [Some(8), Some(9), Some(6), Some(3), Some(4), Some(2), Some(5), Some(1), Some(7)],
@@ -40,7 +40,7 @@ const EMPTY : Sudoku = [
 
 #[test]
 fn it_inits_all_none() {
-    let grid = grids::Grid::from([[None; 9]; 9]);
+    let grid = Grid::from([[None; 9]; 9]);
     assert_eq!(grid.sudoku[0][0], None);
     assert_eq!(grid.sudoku[8][8], None);
 }
@@ -59,32 +59,32 @@ fn it_returns_a_solved_grid() {
 
 #[test]
 fn it_gets_values() {
-    let result = grids::Grid::from(UNSOLVED);
+    let result = Grid::from(UNSOLVED);
     assert_eq!(result.get_value(0, 0), None);
     assert_eq!(result.get_value(0, 1), Some(9));
 }
 
 #[test]
 fn it_finds_potentials_in_an_empty_cell() {
-    let result = grids::Grid::from(EMPTY);
+    let result = Grid::from(EMPTY);
     assert_eq!(result.find_potentials(0, 0), vec![Some(1), Some(2), Some(3), Some(4), Some(5), Some(6), Some(7), Some(8), Some(9)]);
 }
 
 #[test]
 fn it_finds_potentials_in_a_cell() {
-    let result = grids::Grid::from(UNSOLVED);
+    let result = Grid::from(UNSOLVED);
     assert_eq!(result.find_potentials(0, 0), vec![Some(3), Some(8)]);
 }
 
 #[test]
 fn it_finds_no_potentials_in_a_cell() {
-    let result = grids::Grid::from(RESOLVED);
+    let result = Grid::from(RESOLVED);
     assert_eq!(result.find_potentials(0, 0), vec![]);
 }
 
 #[test]
 fn it_checks_impossible() {
-    let result = grids::Grid::from(UNSOLVED);
+    let result = Grid::from(UNSOLVED);
     assert_eq!(result.check_impossible(0, 0, &Some(9)), true);
     assert_eq!(result.check_impossible(0, 0, &Some(3)), false);
     assert_eq!(result.check_impossible(0, 0, &Some(8)), false);

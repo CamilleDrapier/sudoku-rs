@@ -1,7 +1,7 @@
 pub mod models;
-
-pub type Sudoku = [[Option<u8>; 9]; 9];
+use models::grids::Grid;
+use models::sudokus::Sudoku;
 
 pub fn solve(sud: Sudoku) -> Sudoku {
-    models::grids::Grid::from(sud).solve()
+    Grid::from(sud).solve()
 }

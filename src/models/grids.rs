@@ -1,4 +1,4 @@
-use Sudoku;
+use models::sudokus::Sudoku;
 
 pub struct Grid {
     pub sudoku: Sudoku,
