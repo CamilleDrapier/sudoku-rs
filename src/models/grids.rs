@@ -5,19 +5,21 @@ pub struct Grid {
     pub number_found: u8,
 }
 
-pub fn build_grid(sudoku: Sudoku) -> Grid {
-    let mut number_found = 0;
-    for lines in sudoku.iter() {
-        for cells in lines.iter() {
-            match cells {
-                Some(_) => number_found = number_found + 1,
-                None => ()
+impl From<Sudoku> for Grid {
+    fn from(sudoku: Sudoku) -> Self {
+        let mut number_found = 0;
+        for lines in sudoku.iter() {
+            for cells in lines.iter() {
+                match cells {
+                    Some(_) => number_found = number_found + 1,
+                    None => ()
+                }
             }
         }
-    }
-    Grid{
-        sudoku,
-        number_found
+        Grid{
+            sudoku,
+            number_found
+        }
     }
 }
 
