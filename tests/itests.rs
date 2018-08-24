@@ -81,3 +81,12 @@ fn it_finds_no_potentials_in_a_cell() {
     let result = grids::build_grid(RESOLVED);
     assert_eq!(result.find_potentials(0, 0), vec![]);
 }
+
+#[test]
+fn it_checks_impossible() {
+    let result = grids::build_grid(UNSOLVED);
+    assert_eq!(result.check_impossible(0, 0, &Some(9)), true);
+    assert_eq!(result.check_impossible(0, 0, &Some(3)), false);
+    assert_eq!(result.check_impossible(0, 0, &Some(8)), false);
+    assert_eq!(result.check_impossible(4, 8, &Some(8)), true);
+}
