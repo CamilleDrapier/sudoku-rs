@@ -110,7 +110,33 @@ impl Grid {
         line_impossible || column_impossible
     }
 
-    pub fn to_sudoku(&self) -> &Sudoku {
-        &self.sudoku
+    pub fn solve(&mut self) -> Sudoku {
+        let mut prev_number = 0;
+        while self.number_found < (9 * 9) && self.number_found > prev_number {
+            prev_number = self.number_found;
+            for i in 0..9 {
+                for j in 0..9 {
+                    if self.get_value(i, j).is_none() {
+                        let potentials = self.find_potentials(i, j);
+                        if potentials.len() == 1 {
+                            //println!("Found [{}][{}] -> {:?}", i, j, *potentials.first().unwrap());
+                            self.set_value(i, j,*potentials.first().unwrap());
+                        }else {
+                            for potential in potentials.iter() {
+                                if self.get_value(i, j).is_none() && self.check_impossible(i, j, potential) {
+                                    //println!("Found Impossible [{}][{}] -> {:?}", i, j, potential.unwrap());
+                                    self.set_value(i, j,*potential);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        self.to_sudoku()
+    }
+
+    pub fn to_sudoku(&self) -> Sudoku {
+        self.sudoku
     }
 }
