@@ -47,13 +47,13 @@ fn it_inits_all_none() {
 
 #[test]
 fn it_solves() {
-    let result = sudoku::solve(UNSOLVED);
+    let result = Grid::from(UNSOLVED).solve();
     assert_eq!(RESOLVED, result);
 }
 
 #[test]
 fn it_returns_a_solved_grid() {
-    let result = sudoku::solve(RESOLVED);
+    let result = Grid::from(RESOLVED).solve();
     assert_eq!(RESOLVED, result);
 }
 
